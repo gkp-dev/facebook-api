@@ -14,7 +14,7 @@ router.get('/:id/posts', async (req, res) => {
     const user = await User.findById(id)
 
     if (isEmpty(user)) {
-      return res.status(404).json('user does not exist with this id')
+      return res.status(400).json('user does not exist with this id')
     }
 
     //@ts-ignore
@@ -59,7 +59,7 @@ router.get('/:id/profile', async (req, res) => {
 
     return res.json(profile)
   } catch (err) {
-    return res.json(err)
+    return res.status(500).json('Something went wrong')
   }
 })
 
@@ -87,7 +87,7 @@ router.patch('/:id/profile', async (req, res) => {
 
     return res.json(newProfile)
   } catch (err) {
-    return res.json(err)
+    return res.status(500).json('Something went wrong')
   }
 })
 

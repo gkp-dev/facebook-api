@@ -5,9 +5,9 @@ import api from './api/index'
 import handleConnectionToDatabase from './config/database/init'
 import handleTest from './tests'
 
-const app = express()
-
 const launchServer = async () => {
+  const app = express()
+
   //Initialize
   app.use(cors())
   app.use(express.json())

@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
   const currentUser = await User.find({ email: user.email })
 
   if (isEmpty(currentUser)) {
-    return res.status(404).json('There is something wrong')
+    return res.status(400).json('There is something wrong')
   }
 
   try {
@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
 
     res.json(newPost)
   } catch (err) {
-    return res.json(err)
+    return res.status(500).json('Something went wrong')
   }
 })
 
@@ -49,9 +49,9 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json('There is no post')
     }
 
-    return res.json(post)
+    return res.json({ post: post })
   } catch (err) {
-    return res.json(err)
+    return res.status(500).json('Something went wrong')
   }
 })
 
@@ -59,12 +59,12 @@ router.get('/', async (req, res) => {
   try {
     const posts = await Post.find()
     if (posts.length === 0) {
-      return res.status(404).json('There is no post')
+      return res.status(400).json('There is no post')
     }
 
     return res.json(posts)
   } catch (err) {
-    return res.json(err)
+    return res.status(500).json('Something went wrong')
   }
 })
 
@@ -89,7 +89,7 @@ router.patch('/:id', async (req, res) => {
 
     return res.json(newPost)
   } catch (err) {
-    return res.json(err)
+    return res.status(500).json('Something went wrong')
   }
 })
 
@@ -100,9 +100,9 @@ router.delete('/:id', async (req, res) => {
 
     await Post.findByIdAndRemove(id)
 
-    return res.json(null)
+    return res.status(204).end()
   } catch (err) {
-    return res.json(err)
+    return res.status(500).json('Something went wrong')
   }
 })
 

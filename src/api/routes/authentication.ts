@@ -15,19 +15,17 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body
 
     if (isEmpty(req.body)) {
-      return res.status(404).json('Info Incomplete')
+      return res.status(400).json('Info Incomplete')
     }
 
-    const users = await User.find({ email })
-    if (users.length === 0) {
-      return res.status(404).json('User does not exist')
+    const [user] = await User.find({ email })
+    if (!user) {
+      return res.status(401).json('Email or password invalid')
     }
-
-    let user = users[0]
 
     //@ts-ignore
     if (!(await comparePassword(password, user.password))) {
-      return res.status(404).json('Email or password invalid')
+      return res.status(401).json('Email or password invalid')
     }
 
     const token = generateToken({ email: user.email })
@@ -38,7 +36,7 @@ router.post('/login', async (req, res) => {
     })
   } catch (err) {
     console.error(err)
-    res.json(err)
+    res.status(500).json('Something went wrong')
   }
 })
 
@@ -46,13 +44,13 @@ router.post('/register', async (req, res) => {
   const { email, password } = req.body
   // 1- Validation des entrees
   if (isEmpty(req.body)) {
-    return res.status(404).json('Information not complete')
+    return res.status(400).json('Information not complete')
   }
 
   try {
     const user = await User.find({ email })
     if (user.length > 0) {
-      return res.status(404).json('User already exists')
+      return res.status(400).json('User already exists')
     }
 
     // Register a User
@@ -67,7 +65,7 @@ router.post('/register', async (req, res) => {
     res.json(newUser)
   } catch (err) {
     console.error(err)
-    res.json(err)
+    res.status(500).json('Something went wrong')
   }
 })
 
