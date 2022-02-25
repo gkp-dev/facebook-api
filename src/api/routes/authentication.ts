@@ -5,7 +5,7 @@ import { isEmpty } from 'lodash'
 
 // Helpers
 import { hashPassword, comparePassword } from '../../helpers/password'
-import { generateToken, decodedToken } from '../../helpers/jwt'
+import { generateToken } from '../../helpers/jwt'
 
 // Model
 import User from '../../config/database/models/User'
@@ -31,7 +31,12 @@ router.post('/login', async (req, res) => {
       return res.status(404).json('Email or password invalid')
     }
 
-    return { user, token: `Bearer ${generateToken(user.email)}` }
+    const token = generateToken({ userId: user.email })
+
+    return res.json({
+      user,
+      token: `Bearer ${token}`,
+    })
   } catch (err) {
     console.error(err)
     res.json(err)
