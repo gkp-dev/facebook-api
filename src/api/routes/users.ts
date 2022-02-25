@@ -25,9 +25,6 @@ router.get('/:id/posts', async (req, res) => {
     }
 
     let allPosts = []
-
-    console.log('Allposts', allPosts)
-
     for (let i = 0; i < posts.length; i++) {
       // @ts-ignore
       allPosts.push(await Post.findById(posts[i]))
@@ -50,14 +47,17 @@ router.get('/:id/profile', async (req, res) => {
 
     //@ts-ignore
     const { profileId } = user
+    if (!profileId) {
+      return res.status(404).json('There is no profile yet')
+    }
 
-    const profile = await Profile.findById(profileId)
+    const profile = await Profile.findById({ _id: profileId })
 
     if (isEmpty(profile)) {
       return res.json('There no profile yet')
     }
 
-    return res.json({ user, ...profile })
+    return res.json(profile)
   } catch (err) {
     return res.json(err)
   }
@@ -75,13 +75,13 @@ router.patch('/:id/profile', async (req, res) => {
 
     //@ts-ignore
     const newProfile = await Profile.findByIdAndUpdate(
+      { _id: id },
       {
         $set: {
           firstName,
           lastName,
         },
-      },
-      { new: true }
+      }
     )
 
     return res.json(newProfile)
@@ -93,8 +93,8 @@ router.patch('/:id/profile', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const user = await User.findById(id)
-    await User.findByIdAndRemove(id)
+    const user = await User.findById({ _id: id })
+    await User.findByIdAndRemove({ _id: id })
     await Profile.findByIdAndRemove(user?.profileId)
 
     res.json('Delete')

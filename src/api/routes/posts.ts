@@ -5,7 +5,6 @@ const router = Router()
 // Model
 import User from '../../config/database/models/User'
 import Post from '../../config/database/models/Post'
-import Profile from '../../config/database/models/Profile'
 
 router.post('/', async (req, res) => {
   const { message } = req.body
@@ -14,13 +13,25 @@ router.post('/', async (req, res) => {
 
   const currentUser = await User.find({ email: user.email })
 
+  if (isEmpty(currentUser)) {
+    return res.status(404).json('There is something wrong')
+  }
+
   try {
     const newPost = await new Post({
       message,
       //@ts-ignore
-      authorId: currentUser?._id,
+      authorId: currentUser[0]._id,
       updatedAt: '',
     }).save()
+
+    await User.findByIdAndUpdate(
+      //@ts-ignore
+      { _id: currentUser[0]._id },
+      {
+        $push: { posts: newPost._id },
+      }
+    )
 
     res.json(newPost)
   } catch (err) {
@@ -65,6 +76,7 @@ router.patch('/:id', async (req, res) => {
     }
 
     const newPost = await Post.findByIdAndUpdate(
+      { _id: id },
       {
         $set: {
           message,
