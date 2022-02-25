@@ -9,7 +9,6 @@ import { generateToken } from '../../helpers/jwt'
 
 // Model
 import User from '../../config/database/models/User'
-import Profile from '../../config/database/models/Profile'
 
 router.post('/login', async (req, res) => {
   try {
@@ -31,7 +30,7 @@ router.post('/login', async (req, res) => {
       return res.status(404).json('Email or password invalid')
     }
 
-    const token = generateToken({ userId: user.email })
+    const token = generateToken({ email: user.email })
 
     return res.json({
       user,
@@ -44,7 +43,7 @@ router.post('/login', async (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
-  const { email, password, lastName, firstName } = req.body
+  const { email, password } = req.body
   // 1- Validation des entrees
   if (isEmpty(req.body)) {
     return res.status(404).json('Information not complete')
@@ -61,34 +60,11 @@ router.post('/register', async (req, res) => {
       email,
       password: await hashPassword(password),
       posts: [],
+      profileId: '',
       updatedAt: '',
     }).save()
 
-    const newProfile = await new Profile({
-      firstName,
-      lastName,
-      userId: newUser._id,
-      updatedAt: '',
-    }).save()
-
-    // Update  those two
-    const otherUser = await User.findByIdAndUpdate(
-      newUser._id,
-      {
-        $set: {
-          profile: newProfile._id,
-        },
-      },
-      { new: true }
-    )
-
-    await Profile.findByIdAndUpdate(newProfile._id, {
-      $set: {
-        userId: newProfile._id,
-      },
-    })
-
-    res.json(otherUser)
+    res.json(newUser)
   } catch (err) {
     console.error(err)
     res.json(err)

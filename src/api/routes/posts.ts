@@ -1,24 +1,95 @@
+import { isEmpty } from 'lodash'
 import { Router } from 'express'
 const router = Router()
 
-router.post('/', (req, res) => {
-  res.json('Welcome to another api world')
+// Model
+import User from '../../config/database/models/User'
+import Post from '../../config/database/models/Post'
+import Profile from '../../config/database/models/Profile'
+
+router.post('/', async (req, res) => {
+  const { message } = req.body
+  // @ts-ignore
+  const { user } = req
+
+  const currentUser = await User.find({ email: user.email })
+
+  try {
+    const newPost = await new Post({
+      message,
+      //@ts-ignore
+      authorId: currentUser?._id,
+      updatedAt: '',
+    }).save()
+
+    res.json(newPost)
+  } catch (err) {
+    return res.json(err)
+  }
 })
 
-router.get('/:id', (req, res) => {
-  res.json('Welcome to another api world')
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const post = await Post.findById(id)
+    if (isEmpty(post)) {
+      return res.status(404).json('There is no post')
+    }
+
+    return res.json(post)
+  } catch (err) {
+    return res.json(err)
+  }
 })
 
-router.get('/', (req, res) => {
-  res.json('Welcome to another api world')
+router.get('/', async (req, res) => {
+  try {
+    const posts = await Post.find()
+    if (posts.length === 0) {
+      return res.status(404).json('There is no post')
+    }
+
+    return res.json(posts)
+  } catch (err) {
+    return res.json(err)
+  }
 })
 
-router.patch('/:id', (req, res) => {
-  res.json('Welcome to another api world')
+router.patch('/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { message } = req.body
+    const post = await Post.findById(id)
+    if (isEmpty(post)) {
+      return res.status(404).json('There is no post')
+    }
+
+    const newPost = await Post.findByIdAndUpdate(
+      {
+        $set: {
+          message,
+        },
+      },
+      { new: true }
+    )
+
+    return res.json(newPost)
+  } catch (err) {
+    return res.json(err)
+  }
 })
 
-router.delete('/:id', (req, res) => {
-  res.json('Welcome to another api world')
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { message } = req.body
+
+    await Post.findByIdAndRemove(id)
+
+    return res.json(null)
+  } catch (err) {
+    return res.json(err)
+  }
 })
 
 export default router
