@@ -1,6 +1,22 @@
 import mongoose from 'mongoose'
 
-const userSchema = new mongoose.Schema({
+type Post = {
+  message: string
+  authorId?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+type User = {
+  email: string
+  password: string
+  profileId?: string
+  posts: Post[]
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+const userSchema = new mongoose.Schema<User>({
   email: {
     type: String,
     minlength: 3,
@@ -14,12 +30,12 @@ const userSchema = new mongoose.Schema({
     maxlength: 1024,
     required: true,
   },
-  profile: {
-    type: mongoose.Types.ObjectId,
-    required: true,
+  profileId: {
+    type: String,
   },
-  posts: [mongoose.Types.ObjectId],
+  posts: [String],
   createdAt: {
+    type: Date,
     default: Date.now(),
     required: true,
   },

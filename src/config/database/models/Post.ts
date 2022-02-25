@@ -1,18 +1,21 @@
 import mongoose from 'mongoose'
 
-const postSchema = new mongoose.Schema({
+type Post = {
+  message: string
+  authorId?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+const postSchema = new mongoose.Schema<Post>({
   message: {
     type: String,
-    required: true,
   },
-  author: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-  },
-  user: {
-    type: mongoose.Types.ObjectId,
+  authorId: {
+    type: String,
   },
   createdAt: {
+    type: Date,
     default: Date.now(),
     required: true,
   },
