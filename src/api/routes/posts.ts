@@ -30,7 +30,8 @@ router.post('/', async (req, res) => {
       { _id: currentUser[0]._id },
       {
         $push: { posts: newPost._id },
-      }
+      },
+      { new: true }
     )
 
     res.json(newPost)
@@ -43,7 +44,8 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params
     const post = await Post.findById(id)
-    if (isEmpty(post)) {
+
+    if (isEmpty(post) || !post) {
       return res.status(404).json('There is no post')
     }
 

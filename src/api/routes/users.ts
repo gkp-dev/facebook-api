@@ -75,13 +75,14 @@ router.patch('/:id/profile', async (req, res) => {
 
     //@ts-ignore
     const newProfile = await Profile.findByIdAndUpdate(
-      { _id: id },
+      { _id: user?.profileId },
       {
         $set: {
           firstName,
           lastName,
         },
-      }
+      },
+      { new: true }
     )
 
     return res.json(newProfile)
